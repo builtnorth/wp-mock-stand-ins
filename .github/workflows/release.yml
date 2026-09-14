@@ -25,7 +25,11 @@ jobs:
       composer-namespace: 'builtnorth/wp-mock-stand-ins'
       version: ${{ inputs.version }}
       prerelease: ${{ inputs.prerelease }}
+      # Package has no phpunit/phpcs/phpcompat suite yet (see wp-cli-builtnorth for precedent).
       composer-repository-profile: coding-standards-only
+      run-coverage: false
+      run-phpcs: false
+      run-phpcompat: false
     secrets: inherit
     permissions:
       contents: write
