@@ -167,6 +167,7 @@ if (! class_exists('WP_REST_Server', false)) {
 if (! class_exists('WP_Query', false)) {
     class WP_Query {
         public $query_vars = [];
+        public $max_num_pages = 0;
 
         public function __construct($query = '') {
             $this->query_vars = is_array($query) ? $query : [];
@@ -196,8 +197,8 @@ if (! class_exists('WP_Post', false)) {
 
 /*
  * Minimal stand-in for WP_Post_Type — real WP core class with no WP_Mock
- * equivalent. Only the subset (name, capability object, REST fields) that
- * consuming code reads.
+ * equivalent. Only the subset (name, capability object, REST fields,
+ * archive/rewrite config) that consuming code reads.
  */
 if (! class_exists('WP_Post_Type', false)) {
     class WP_Post_Type {
@@ -206,6 +207,11 @@ if (! class_exists('WP_Post_Type', false)) {
         public string $rest_namespace = '';
         public string $rest_base = '';
         public object $cap;
+        public bool $public = true;
+        /** @var bool|string */
+        public $has_archive = false;
+        /** @var array|false */
+        public $rewrite = false;
 
         public function __construct(string $name, string $editCapability = 'edit_posts') {
             $this->name = $name;
