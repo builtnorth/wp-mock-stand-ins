@@ -339,3 +339,128 @@ if (! class_exists('WP_Block_Type_Registry', false)) {
         }
     }
 }
+
+/**
+ * Minimal $wpdb stand-in.
+ *
+ * Tests that only need `$wpdb->prefix` have historically assigned a bare
+ * stdClass. That breaks the moment the code under test reaches a *method* —
+ * a package whose boot path installs a DB schema calls
+ * get_charset_collate(), and stdClass fatals with "call to undefined method".
+ *
+ * This covers the read-only surface a unit test can meaningfully assert on and
+ * makes the mutating calls inert: queries return empty rather than pretending
+ * to have run. A test that needs real query results should stub the specific
+ * method on an instance, or belong in an integration suite with a real
+ * database.
+ */
+if (! class_exists('wpdb', false)) {
+    class wpdb {
+        public $prefix = 'wp_';
+        public $base_prefix = 'wp_';
+        public $insert_id = 1;
+        public $last_error = '';
+        public $num_rows = 0;
+        public $options = 'wp_options';
+        public $posts = 'wp_posts';
+        public $postmeta = 'wp_postmeta';
+        public $users = 'wp_users';
+        public $usermeta = 'wp_usermeta';
+
+        /** @var list<string> Every query this instance was asked to run. */
+        public $queries = [];
+
+        public function get_charset_collate() {
+            return 'DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_520_ci';
+        }
+
+        /**
+         * Interpolates like the real prepare() for the placeholders WordPress
+         * supports, so assertions on the built SQL are meaningful. Not a
+         * security boundary — this is a test double.
+         */
+        public function prepare($query, ...$args) {
+            if ($args === []) {
+                return $query;
+            }
+            if (count($args) === 1 && is_array($args[0])) {
+                $args = $args[0];
+            }
+            $out = '';
+            $i = 0;
+            $len = strlen($query);
+            while ($i < $len) {
+                $ch = $query[$i];
+                if ($ch === '%' && $i + 1 < $len && in_array($query[$i + 1], ['s', 'd', 'f'], true)) {
+                    $type = $query[$i + 1];
+                    $val = array_shift($args);
+                    if ($type === 'd') {
+                        $out .= (int) $val;
+                    } elseif ($type === 'f') {
+                        $out .= (float) $val;
+                    } else {
+                        $out .= "'" . str_replace("'", "\\'", (string) $val) . "'";
+                    }
+                    $i += 2;
+                    continue;
+                }
+                $out .= $ch;
+                ++$i;
+            }
+            return $out;
+        }
+
+        public function query($query) {
+            $this->queries[] = (string) $query;
+            return 0;
+        }
+
+        public function get_var($query = null, $x = 0, $y = 0) {
+            if (null !== $query) {
+                $this->queries[] = (string) $query;
+            }
+            return null;
+        }
+
+        public function get_row($query = null, $output = 'OBJECT', $y = 0) {
+            if (null !== $query) {
+                $this->queries[] = (string) $query;
+            }
+            return null;
+        }
+
+        public function get_col($query = null, $x = 0) {
+            if (null !== $query) {
+                $this->queries[] = (string) $query;
+            }
+            return [];
+        }
+
+        public function get_results($query = null, $output = 'OBJECT') {
+            if (null !== $query) {
+                $this->queries[] = (string) $query;
+            }
+            return [];
+        }
+
+        public function insert($table, $data, $format = null) {
+            return 1;
+        }
+
+        public function update($table, $data, $where, $format = null, $where_format = null) {
+            return 1;
+        }
+
+        public function delete($table, $where, $where_format = null) {
+            return 1;
+        }
+
+        public function esc_like($text) {
+            return addcslashes((string) $text, '_%\\');
+        }
+
+        public function has_cap($db_cap) {
+            return true;
+        }
+    }
+}
