@@ -370,6 +370,19 @@ if (! class_exists('wpdb', false)) {
         /** @var list<string> Every query this instance was asked to run. */
         public $queries = [];
 
+        /**
+         * Optional queue of return values for successive query() calls.
+         *
+         * query() reports affected-row counts, and code that acts on those
+         * counts (a retention sweep reporting how much it deleted, say) is
+         * untestable against a hardcoded 0. Push one entry per expected
+         * call; an exhausted or empty queue falls back to the default 0, so
+         * existing tests are unaffected.
+         *
+         * @var list<int>
+         */
+        public $query_results = [];
+
         public function get_charset_collate() {
             return 'DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_520_ci';
         }
@@ -412,7 +425,8 @@ if (! class_exists('wpdb', false)) {
 
         public function query($query) {
             $this->queries[] = (string) $query;
-            return 0;
+
+            return $this->query_results === [] ? 0 : (int) array_shift($this->query_results);
         }
 
         public function get_var($query = null, $x = 0, $y = 0) {
