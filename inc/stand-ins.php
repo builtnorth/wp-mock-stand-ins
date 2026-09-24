@@ -408,6 +408,82 @@ if (! class_exists('WP_Block_Type_Registry', false)) {
 }
 
 /**
+ * Minimal stand-in for WP_Ability (WordPress 6.9+ Abilities API) — real WP
+ * core class with no WP_Mock equivalent. Covers what code handed a registered
+ * ability reads: name, meta, and the permission/execute callbacks. Input and
+ * output schema validation are not reproduced.
+ */
+if (! class_exists('WP_Ability', false)) {
+    class WP_Ability {
+        protected string $name;
+        /** @var array<string, mixed> */
+        protected array $meta;
+        /** @var callable|null */
+        protected $permission_callback;
+        /** @var callable|null */
+        protected $execute_callback;
+
+        /**
+         * @param array<string, mixed> $args Same keys as wp_register_ability().
+         */
+        public function __construct(string $name, array $args = []) {
+            $this->name = $name;
+            $this->meta = is_array($args['meta'] ?? null) ? $args['meta'] : [];
+            $this->permission_callback = $args['permission_callback'] ?? null;
+            $this->execute_callback = $args['execute_callback'] ?? null;
+        }
+
+        public function get_name(): string {
+            return $this->name;
+        }
+
+        /** @return array<string, mixed> */
+        public function get_meta(): array {
+            return $this->meta;
+        }
+
+        /**
+         * @param mixed $default_value
+         * @return mixed
+         */
+        public function get_meta_item(string $key, $default_value = null) {
+            return array_key_exists($key, $this->meta) ? $this->meta[$key] : $default_value;
+        }
+
+        /**
+         * @param mixed $input
+         * @return bool|WP_Error
+         */
+        public function check_permissions($input = null) {
+            if (! is_callable($this->permission_callback)) {
+                return new WP_Error('ability_invalid_permission_callback', 'Invalid permission callback.');
+            }
+
+            $result = call_user_func($this->permission_callback, $input);
+
+            return is_bool($result) || $result instanceof WP_Error ? $result : false;
+        }
+
+        /**
+         * @param mixed $input
+         * @return mixed
+         */
+        public function execute($input = null) {
+            $permission = $this->check_permissions($input);
+            if (true !== $permission) {
+                return $permission instanceof WP_Error
+                    ? $permission
+                    : new WP_Error('ability_invalid_permissions', 'Permission denied.');
+            }
+
+            return is_callable($this->execute_callback)
+                ? call_user_func($this->execute_callback, $input)
+                : new WP_Error('ability_invalid_execute_callback', 'Invalid execute callback.');
+        }
+    }
+}
+
+/**
  * Minimal $wpdb stand-in.
  *
  * Tests that only need `$wpdb->prefix` have historically assigned a bare
