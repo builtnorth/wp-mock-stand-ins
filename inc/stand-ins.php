@@ -212,10 +212,77 @@ if (! class_exists('WP_Post_Type', false)) {
         public $has_archive = false;
         /** @var array|false */
         public $rewrite = false;
+        // Admin visibility and placement. Code that modifies an already
+        // registered post type writes these directly on the object, which is
+        // how WordPress itself expects late changes to be made.
+        public bool $publicly_queryable = true;
+        public bool $show_ui = true;
+        /** @var bool|string */
+        public $show_in_menu = true;
+        public bool $show_in_nav_menus = true;
+        public bool $show_in_admin_bar = true;
+        public bool $show_in_rest = false;
+        /** @var int|null */
+        public $menu_position = null;
+        /** @var string|null */
+        public $menu_icon = null;
+        public bool $hierarchical = false;
+        /** @var array|object */
+        public $labels = [];
+        /** @var array|bool */
+        public $supports = [];
+        /** @var array|null */
+        public $template = null;
+        /** @var string|bool|null */
+        public $template_lock = null;
 
         public function __construct(string $name, string $editCapability = 'edit_posts') {
             $this->name = $name;
             $this->cap = (object) ['edit_posts' => $editCapability];
+        }
+    }
+}
+
+/*
+ * Minimal stand-in for WP_Taxonomy — real WP core class with no WP_Mock
+ * equivalent. Mirrors the WP_Post_Type stand-in above: the subset of
+ * properties that code registering or modifying a taxonomy reads and writes.
+ */
+if (! class_exists('WP_Taxonomy', false)) {
+    class WP_Taxonomy {
+        public string $name;
+        public bool $_builtin = false;
+        /** @var array<int, string> */
+        public array $object_type = [];
+        public bool $public = true;
+        public bool $publicly_queryable = true;
+        public bool $show_ui = true;
+        /** @var bool|string */
+        public $show_in_menu = true;
+        public bool $show_in_nav_menus = true;
+        public bool $show_in_rest = false;
+        public bool $show_admin_column = false;
+        public bool $show_tagcloud = true;
+        public bool $show_in_quick_edit = true;
+        public bool $hierarchical = false;
+        public string $rest_base = '';
+        /** @var array|object */
+        public $labels = [];
+        /** @var array|false */
+        public $rewrite = false;
+        /** @var callable|false|null */
+        public $meta_box_cb = null;
+
+        /**
+         * @param array<int, string>|string $objectType
+         */
+        public function __construct(string $name, $objectType = [], array $args = []) {
+            $this->name = $name;
+            $this->object_type = (array) $objectType;
+
+            foreach ($args as $key => $value) {
+                $this->$key = $value;
+            }
         }
     }
 }
