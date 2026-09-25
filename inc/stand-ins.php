@@ -196,6 +196,26 @@ if (! class_exists('WP_Post', false)) {
 }
 
 /*
+ * Minimal stand-in for WP_User — real WP core class with no WP_Mock
+ * equivalent. Copies properties from the passed array (ID, user_email,
+ * user_login, roles, ...) onto itself; capability checks are left to the
+ * test's own user_can() / current_user_can() mocks.
+ */
+if (! class_exists('WP_User', false)) {
+    #[\AllowDynamicProperties]
+    class WP_User {
+        public int $ID = 0;
+
+        /** @param array<string, mixed> $data */
+        public function __construct(array $data = []) {
+            foreach ($data as $key => $value) {
+                $this->{$key} = $value;
+            }
+        }
+    }
+}
+
+/*
  * Minimal stand-in for WP_Post_Type — real WP core class with no WP_Mock
  * equivalent. Only the subset (name, capability object, REST fields,
  * archive/rewrite config) that consuming code reads.
