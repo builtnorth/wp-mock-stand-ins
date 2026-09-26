@@ -437,6 +437,8 @@ if (! class_exists('WP_Ability', false)) {
     class WP_Ability {
         protected string $name;
         /** @var array<string, mixed> */
+        protected array $args = [];
+        /** @var array<string, mixed> */
         protected array $meta;
         /** @var callable|null */
         protected $permission_callback;
@@ -448,6 +450,7 @@ if (! class_exists('WP_Ability', false)) {
          */
         public function __construct(string $name, array $args = []) {
             $this->name = $name;
+            $this->args = $args;
             $this->meta = is_array($args['meta'] ?? null) ? $args['meta'] : [];
             $this->permission_callback = $args['permission_callback'] ?? null;
             $this->execute_callback = $args['execute_callback'] ?? null;
@@ -455,6 +458,23 @@ if (! class_exists('WP_Ability', false)) {
 
         public function get_name(): string {
             return $this->name;
+        }
+
+        public function get_label(): string {
+            return (string) ($this->args['label'] ?? '');
+        }
+
+        public function get_description(): string {
+            return (string) ($this->args['description'] ?? '');
+        }
+
+        public function get_category(): string {
+            return (string) ($this->args['category'] ?? '');
+        }
+
+        /** @return array<string, mixed> */
+        public function get_input_schema(): array {
+            return is_array($this->args['input_schema'] ?? null) ? $this->args['input_schema'] : [];
         }
 
         /** @return array<string, mixed> */
