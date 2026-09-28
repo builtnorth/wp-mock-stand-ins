@@ -427,6 +427,30 @@ if (! class_exists('WP_Block_Type_Registry', false)) {
     }
 }
 
+/*
+ * Minimal stand-in for WP_Block_Editor_Context — real WP core class with no
+ * WP_Mock equivalent. The editor name and post that filters such as
+ * allowed_block_types_all receive.
+ */
+if (! class_exists('WP_Block_Editor_Context', false)) {
+    class WP_Block_Editor_Context {
+        /** @var string */
+        public $name = 'core/edit-post';
+
+        /** @var WP_Post|null */
+        public $post = null;
+
+        public function __construct(array $settings = []) {
+            if (isset($settings['name'])) {
+                $this->name = $settings['name'];
+            }
+            if (isset($settings['post'])) {
+                $this->post = $settings['post'];
+            }
+        }
+    }
+}
+
 /**
  * Minimal stand-in for WP_Ability (WordPress 6.9+ Abilities API) — real WP
  * core class with no WP_Mock equivalent. Covers what code handed a registered
