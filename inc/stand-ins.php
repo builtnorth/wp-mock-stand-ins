@@ -309,13 +309,26 @@ if (! class_exists('WP_Taxonomy', false)) {
 
 /*
  * Minimal stand-in for WP_Block — real WP core class with no WP_Mock
- * equivalent. Only the block-context array that a dynamic block's render
- * callback typically reads.
+ * equivalent. The public properties a render callback or render_block filter
+ * reads: name, attributes, the parsed block (for metadata.bindings), context,
+ * and the child block instances.
  */
 if (! class_exists('WP_Block', false)) {
     class WP_Block {
+        /** @var string|null */
+        public $name = null;
+
+        /** @var array<string, mixed> */
+        public array $attributes = [];
+
+        /** @var array<string, mixed> */
+        public array $parsed_block = [];
+
         /** @var array<string, mixed> */
         public array $context = [];
+
+        /** @var iterable<int, WP_Block> Core uses WP_Block_List; tests may use an array. */
+        public $inner_blocks = [];
     }
 }
 
