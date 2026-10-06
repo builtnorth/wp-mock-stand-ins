@@ -250,6 +250,7 @@ if (! class_exists('WP_Post_Type', false)) {
         /** @var string|null */
         public $menu_icon = null;
         public bool $hierarchical = false;
+        public string $label = '';
         /** @var array|object */
         public $labels = [];
         /** @var array|bool */
@@ -289,6 +290,7 @@ if (! class_exists('WP_Taxonomy', false)) {
         public bool $show_in_quick_edit = true;
         public bool $hierarchical = false;
         public string $rest_base = '';
+        public string $label = '';
         /** @var array|object */
         public $labels = [];
         /** @var array|false */
