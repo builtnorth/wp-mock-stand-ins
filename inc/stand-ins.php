@@ -227,6 +227,9 @@ if (! class_exists('WP_Post_Type', false)) {
         public string $rest_namespace = '';
         public string $rest_base = '';
         public object $cap;
+        /** @var string|array<int, string> */
+        public $capability_type = 'post';
+        public bool $map_meta_cap = true;
         public bool $public = true;
         /** @var bool|string */
         public $has_archive = false;
@@ -292,6 +295,7 @@ if (! class_exists('WP_Taxonomy', false)) {
         public $rewrite = false;
         /** @var callable|false|null */
         public $meta_box_cb = null;
+        public object $cap;
 
         /**
          * @param array<int, string>|string $objectType
@@ -299,6 +303,13 @@ if (! class_exists('WP_Taxonomy', false)) {
         public function __construct(string $name, $objectType = [], array $args = []) {
             $this->name = $name;
             $this->object_type = (array) $objectType;
+            // WP_Taxonomy's default capabilities.
+            $this->cap = (object) [
+                'manage_terms' => 'manage_categories',
+                'edit_terms'   => 'manage_categories',
+                'delete_terms' => 'manage_categories',
+                'assign_terms' => 'edit_posts',
+            ];
 
             foreach ($args as $key => $value) {
                 $this->$key = $value;
