@@ -239,6 +239,7 @@ if (! class_exists('WP_Post_Type', false)) {
         // registered post type writes these directly on the object, which is
         // how WordPress itself expects late changes to be made.
         public bool $publicly_queryable = true;
+        public bool $exclude_from_search = false;
         public bool $show_ui = true;
         /** @var bool|string */
         public $show_in_menu = true;
