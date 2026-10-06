@@ -321,6 +321,32 @@ if (! class_exists('WP_Taxonomy', false)) {
 }
 
 /*
+ * Minimal stand-in for WP_Term — real WP core class with no WP_Mock
+ * equivalent. The public properties code rendering or linking a term reads.
+ */
+if (! class_exists('WP_Term', false)) {
+    class WP_Term {
+        public int $term_id = 0;
+        public string $name = '';
+        public string $slug = '';
+        public string $taxonomy = '';
+        public int $term_taxonomy_id = 0;
+        public int $parent = 0;
+        public int $count = 0;
+        public string $description = '';
+
+        /**
+         * @param object|array<string, mixed> $term
+         */
+        public function __construct($term = []) {
+            foreach ((array) $term as $key => $value) {
+                $this->$key = $value;
+            }
+        }
+    }
+}
+
+/*
  * Minimal stand-in for WP_Block — real WP core class with no WP_Mock
  * equivalent. The public properties a render callback or render_block filter
  * reads: name, attributes, the parsed block (for metadata.bindings), context,
