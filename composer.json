@@ -29,7 +29,8 @@
   },
   "scripts": {
     "test": "echo 'No formal test suite for this package - stand-ins are exercised via consuming packages test suites'",
-    "lint": "echo 'Linting not yet configured for this package'"
+    "lint": "echo 'Linting not yet configured for this package'",
+    "phpcompat": "phpcs -p inc --standard=PHPCompatibility --runtime-set testVersion 8.1-"
   },
   "config": {
     "optimize-autoloader": true,
