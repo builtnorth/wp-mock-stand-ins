@@ -618,6 +618,7 @@ if (! class_exists('wpdb', false)) {
     class wpdb {
         public $prefix = 'wp_';
         public $base_prefix = 'wp_';
+        public $dbname = '';
         public $insert_id = 1;
         public $last_error = '';
         public $num_rows = 0;
