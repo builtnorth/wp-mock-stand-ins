@@ -290,6 +290,7 @@ if (! class_exists('WP_Taxonomy', false)) {
         public bool $show_tagcloud = true;
         public bool $show_in_quick_edit = true;
         public bool $hierarchical = false;
+        public string $rest_namespace = '';
         public string $rest_base = '';
         public string $label = '';
         /** @var array|object */
