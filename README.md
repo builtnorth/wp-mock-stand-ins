@@ -1,4 +1,4 @@
-# WP Mock Stand-ins
+# Built North WP Mock Stand-ins
 
 Minimal WordPress core class stand-ins for [`10up/wp_mock`](https://github.com/10up/wp_mock)-based PHPUnit tests.
 
@@ -50,3 +50,7 @@ This package intentionally does **not** include:
 - WordPress core *functions* — use `10up/wp_mock` for those.
 - A full reimplementation of any WordPress core class — only the subset of
   behavior real test suites actually exercise.
+
+## License
+
+GPL-3.0-or-later — see `LICENSE`.

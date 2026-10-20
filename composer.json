@@ -2,7 +2,7 @@
   "name": "builtnorth/wp-mock-stand-ins",
   "description": "Minimal WordPress core class stand-ins for WP_Mock-based PHPUnit tests (WP_Error, WP_Query, WP_REST_Request, etc.) — no WordPress install required.",
   "type": "library",
-  "license": "GPL-2.0-or-later",
+  "license": "GPL-3.0-or-later",
   "authors": [
     {
       "name": "BuiltNorth",
