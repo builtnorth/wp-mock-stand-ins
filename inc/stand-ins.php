@@ -740,3 +740,26 @@ if (! class_exists('wpdb', false)) {
         }
     }
 }
+
+/**
+ * Minimal stand-in for WP_Theme_JSON_Resolver — real WP core class with no
+ * WP_Mock equivalent. Covers the user global styles lookup only: tests set
+ * $user_cpt to the post array core would return, then reset() in tearDown().
+ */
+if (! class_exists('WP_Theme_JSON_Resolver', false)) {
+    class WP_Theme_JSON_Resolver {
+        /** @var array<string, mixed> Post fields, as from get_object_vars( WP_Post ). */
+        public static array $user_cpt = [];
+
+        /**
+         * @return array<string, mixed>
+         */
+        public static function get_user_data_from_wp_global_styles($theme, $create_post = false, $post_status_filter = ['publish']) {
+            return static::$user_cpt;
+        }
+
+        public static function reset(): void {
+            static::$user_cpt = [];
+        }
+    }
+}

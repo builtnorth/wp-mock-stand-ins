@@ -14,7 +14,7 @@ real WordPress install.
 
 `WP_Error`, `WP_REST_Request`, `WP_REST_Response`, `WP_REST_Server`,
 `WP_Query`, `WP_Post`, `WP_Post_Type`, `WP_Block`, `WP_Block_Type`,
-`WP_Block_Type_Registry`, `WP_Block_Patterns_Registry`.
+`WP_Block_Type_Registry`, `WP_Block_Patterns_Registry`, `WP_Theme_JSON_Resolver`.
 
 Every class is guarded with `class_exists($class, false)` so it never
 shadows a real WordPress core class already loaded in the same process
