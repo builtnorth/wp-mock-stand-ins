@@ -218,9 +218,12 @@ if (! class_exists('WP_User', false)) {
 /*
  * Minimal stand-in for WP_Post_Type — real WP core class with no WP_Mock
  * equivalent. Only the subset (name, capability object, REST fields,
- * archive/rewrite config) that consuming code reads.
+ * archive/rewrite config) that consuming code reads. Allows dynamic
+ * properties like core's: register_post_type() keeps unknown arguments
+ * (e.g. `archive_page`) as properties.
  */
 if (! class_exists('WP_Post_Type', false)) {
+    #[\AllowDynamicProperties]
     class WP_Post_Type {
         public string $name;
         public bool $_builtin = false;
