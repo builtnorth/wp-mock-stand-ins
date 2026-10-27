@@ -129,8 +129,8 @@ if (! class_exists('WP_REST_Request', false)) {
     }
 }
 
-if (! class_exists('WP_REST_Response', false)) {
-    class WP_REST_Response {
+if (! class_exists('WP_HTTP_Response', false)) {
+    class WP_HTTP_Response {
         private $data;
         private $status;
 
@@ -143,9 +143,18 @@ if (! class_exists('WP_REST_Response', false)) {
             return $this->data;
         }
 
+        public function set_data($data) {
+            $this->data = $data;
+        }
+
         public function get_status() {
             return $this->status;
         }
+    }
+}
+
+if (! class_exists('WP_REST_Response', false)) {
+    class WP_REST_Response extends WP_HTTP_Response {
     }
 }
 
