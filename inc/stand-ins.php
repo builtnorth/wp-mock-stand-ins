@@ -386,7 +386,8 @@ if (! class_exists('WP_Block', false)) {
 }
 
 /*
- * Minimal stand-ins for WP_Block_Patterns_Registry / WP_Block_Type_Registry /
+ * Minimal stand-ins for WP_Block_Patterns_Registry /
+ * WP_Block_Pattern_Categories_Registry / WP_Block_Type_Registry /
  * WP_Block_Type — real WP core singletons with no WP_Mock equivalent (WP_Mock
  * only mocks free functions, not classes). Tests populate these directly via
  * get_instance()->register(...) then reset via reset() in tearDown() so
@@ -429,6 +430,48 @@ if (! class_exists('WP_Block_Patterns_Registry', false)) {
 
         public function reset() {
             $this->registered_patterns = [];
+        }
+    }
+}
+
+if (! class_exists('WP_Block_Pattern_Categories_Registry', false)) {
+    class WP_Block_Pattern_Categories_Registry {
+        private static $instance = null;
+        private $registered_categories = [];
+
+        public static function get_instance() {
+            if (null === self::$instance) {
+                self::$instance = new self();
+            }
+            return self::$instance;
+        }
+
+        public function register($category_name, $category_properties) {
+            $this->registered_categories[$category_name] = array_merge(
+                ['name' => $category_name],
+                $category_properties
+            );
+            return true;
+        }
+
+        public function unregister($category_name) {
+            unset($this->registered_categories[$category_name]);
+        }
+
+        public function get_registered($category_name) {
+            return $this->registered_categories[$category_name] ?? null;
+        }
+
+        public function get_all_registered() {
+            return array_values($this->registered_categories);
+        }
+
+        public function is_registered($category_name) {
+            return isset($this->registered_categories[$category_name]);
+        }
+
+        public function reset() {
+            $this->registered_categories = [];
         }
     }
 }
