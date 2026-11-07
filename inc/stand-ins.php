@@ -133,10 +133,29 @@ if (! class_exists('WP_HTTP_Response', false)) {
     class WP_HTTP_Response {
         private $data;
         private $status;
+        private $headers;
 
-        public function __construct($data = null, $status = 200) {
+        public function __construct($data = null, $status = 200, $headers = []) {
             $this->data = $data;
             $this->status = $status;
+            $this->headers = $headers;
+        }
+
+        public function get_headers() {
+            return $this->headers;
+        }
+
+        public function set_headers($headers) {
+            $this->headers = $headers;
+        }
+
+        // Same as core: a repeated header without $replace is comma-joined.
+        public function header($key, $value, $replace = true) {
+            if ($replace || ! isset($this->headers[$key])) {
+                $this->headers[$key] = $value;
+            } else {
+                $this->headers[$key] .= ', ' . $value;
+            }
         }
 
         public function get_data() {
