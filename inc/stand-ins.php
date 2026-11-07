@@ -244,6 +244,27 @@ if (! class_exists('WP_User', false)) {
 }
 
 /*
+ * Minimal stand-in for WP_Http_Cookie, the cookie object WordPress accepts in a
+ * request's `cookies` argument. Only the name and value, set from an array like
+ * core's constructor; code that inspects outgoing cookies reads those two.
+ */
+if (! class_exists('WP_Http_Cookie', false)) {
+    class WP_Http_Cookie {
+        public string $name = '';
+
+        public string $value = '';
+
+        /** @param array{name?: string, value?: string}|string $data */
+        public function __construct(array|string $data = []) {
+            if (is_array($data)) {
+                $this->name  = (string) ($data['name'] ?? '');
+                $this->value = (string) ($data['value'] ?? '');
+            }
+        }
+    }
+}
+
+/*
  * Minimal stand-in for WP_Post_Type — real WP core class with no WP_Mock
  * equivalent. Only the subset (name, capability object, REST fields,
  * archive/rewrite config) that consuming code reads. Allows dynamic
