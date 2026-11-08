@@ -837,14 +837,44 @@ if (! class_exists('wpdb', false)) {
 }
 
 /**
+ * Minimal stand-in for WP_Theme_JSON_Data — the object core hands the
+ * wp_theme_json_data_* filters. Keeps its origin (private, as in core) for
+ * tests to read by reflection.
+ */
+if (! class_exists('WP_Theme_JSON_Data', false)) {
+    class WP_Theme_JSON_Data {
+        /** @var array<string, mixed> */
+        private array $data;
+
+        private string $origin;
+
+        public function __construct($data = ['version' => 3], $origin = 'theme') {
+            $this->data   = is_array($data) ? $data : [];
+            $this->origin = (string) $origin;
+        }
+
+        /**
+         * @return array<string, mixed>
+         */
+        public function get_data() {
+            return $this->data;
+        }
+    }
+}
+
+/**
  * Minimal stand-in for WP_Theme_JSON_Resolver — real WP core class with no
- * WP_Mock equivalent. Covers the user global styles lookup only: tests set
- * $user_cpt to the post array core would return, then reset() in tearDown().
+ * WP_Mock equivalent. Covers the user global styles lookup (tests set
+ * $user_cpt to the post array core would return) and the theme's data (tests
+ * set $theme_json to the theme.json tree), then reset() in tearDown().
  */
 if (! class_exists('WP_Theme_JSON_Resolver', false)) {
     class WP_Theme_JSON_Resolver {
         /** @var array<string, mixed> Post fields, as from get_object_vars( WP_Post ). */
         public static array $user_cpt = [];
+
+        /** @var array<string, mixed> The theme's theme.json tree. */
+        public static array $theme_json = [];
 
         /**
          * @return array<string, mixed>
@@ -853,8 +883,34 @@ if (! class_exists('WP_Theme_JSON_Resolver', false)) {
             return static::$user_cpt;
         }
 
+        /**
+         * Core returns a WP_Theme_JSON. Not stood in here, so class_exists(
+         * 'WP_Theme_JSON') stays false in unit tests: an object with the two
+         * reads code takes from it.
+         *
+         * @return object
+         */
+        public static function get_theme_data($deprecated = [], $options = []) {
+            return new class (static::$theme_json) {
+                /** @param array<string, mixed> $theme_json */
+                public function __construct(private array $theme_json) {
+                }
+
+                /** @return array<string, mixed> */
+                public function get_data() {
+                    return $this->theme_json;
+                }
+
+                /** @return array<string, mixed> */
+                public function get_settings() {
+                    return $this->theme_json['settings'] ?? [];
+                }
+            };
+        }
+
         public static function reset(): void {
-            static::$user_cpt = [];
+            static::$user_cpt   = [];
+            static::$theme_json = [];
         }
     }
 }
